@@ -1,0 +1,6 @@
+## lqos
+Low quality operating system
+
+### Description
+My attempt to write an os, just for fun. Doesn't make us of lqbootloader yet, it uses GNU GRUB bootloader that
+provides Multiboot support. It has been developed following the guide on osdev.org site.
