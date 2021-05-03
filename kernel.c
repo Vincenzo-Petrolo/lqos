@@ -41,7 +41,7 @@ static inline uint16_t vga_entry(unsigned char uc, uint8_t color)
 {
 	return (uint16_t) uc | (uint16_t) color << 8;
 }
- 
+
 size_t strlen(const char* str) 
 {
 	size_t len = 0;
@@ -49,6 +49,8 @@ size_t strlen(const char* str)
 		len++;
 	return len;
 }
+
+void terminal_scroll(void);
  
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
@@ -88,15 +90,20 @@ void terminal_putchar(char c)
 	if (c == '\n') {
 		/*Resetting column and incrementing row*/
 		terminal_column = 0;
-		terminal_row++;
+		if (++terminal_row == VGA_HEIGHT) {
+			terminal_scroll();
+			terminal_row = VGA_HEIGHT - 1;
+		}
 		/*Eventually do nothing, \n chars don't need to be rendered*/
 		return;
 	}
 	terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
 	if (++terminal_column == VGA_WIDTH) {
 		terminal_column = 0;
-		if (++terminal_row == VGA_HEIGHT)
-			terminal_row = 0;
+		if (++terminal_row == VGA_HEIGHT) {
+			terminal_scroll();
+			terminal_row = VGA_HEIGHT - 1;
+		}
 	}
 }
  
@@ -110,6 +117,20 @@ void terminal_writestring(const char* data)
 {
 	terminal_write(data, strlen(data));
 }
+
+void terminal_scroll(void)
+{
+	size_t i,j,x,y;
+
+	for (i = 1; i < VGA_HEIGHT ; i++) {
+		x = (i-1)*VGA_WIDTH;
+		y = i*VGA_WIDTH;
+
+		for ( j = 0; j < VGA_WIDTH; j++) {
+			terminal_buffer[x + j] = terminal_buffer[y + j];
+		}
+	}
+}
  
 void kernel_main(void) 
 {
@@ -118,4 +139,13 @@ void kernel_main(void)
  
 	/* Newline support is left as an exercise. */
 	terminal_writestring("Welcome to lqos!\n");
+	
+	size_t i;
+
+	for (i = 0; i < VGA_HEIGHT*2; i++) {
+		terminal_writestring("Ciao\n");
+	}
+	for (i = 0; i < VGA_HEIGHT/2; i++) {
+		terminal_writestring("Addio\n");
+	}
 }
