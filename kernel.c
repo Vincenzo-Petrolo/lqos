@@ -139,13 +139,4 @@ void kernel_main(void)
  
 	/* Newline support is left as an exercise. */
 	terminal_writestring("Welcome to lqos!\n");
-	
-	size_t i;
-
-	for (i = 0; i < VGA_HEIGHT*2; i++) {
-		terminal_writestring("Ciao\n");
-	}
-	for (i = 0; i < VGA_HEIGHT/2; i++) {
-		terminal_writestring("Addio\n");
-	}
 }
